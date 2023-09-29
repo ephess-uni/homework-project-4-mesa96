@@ -44,7 +44,8 @@ def fees_report(infile, outfile):
     """Calculates late fees per patron id and writes a summary report to
     outfile."""
     late_fees = defaultdict(float)
-
+    patrons = set()  # Keep track of all unique patrons
+    
     with open(infile, 'r') as file:
         reader = DictReader(file)
         for row in reader:
@@ -55,14 +56,19 @@ def fees_report(infile, outfile):
             if returned_date > due_date:
                 days_late = (returned_date - due_date).days
                 late_fees[row['patron_id']] += days_late * 0.25
-
+            
+            patrons.add(row['patron_id'])  # Add patron to set
+    
+    # Include patrons with no late fees
+    for patron_id in patrons:
+        if patron_id not in late_fees:
+            late_fees[patron_id] = 0.0
+    
     with open(outfile, 'w', newline='') as file:
         writer = DictWriter(file, fieldnames=['patron_id', 'late_fees'])
         writer.writeheader()
-        
         for patron_id, fee in late_fees.items():
             writer.writerow({'patron_id': patron_id, 'late_fees': f'{fee:.2f}'})
-
 
 # The following main selection block will only run when you choose
 # "Run -> Module" in IDLE.  Use this section to run test code.  The
