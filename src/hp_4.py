@@ -44,6 +44,7 @@ def fees_report(infile, outfile):
     """Calculates late fees per patron id and writes a summary report to
     outfile."""
     late_fees = defaultdict(float)
+
     with open(infile, 'r') as file:
         reader = DictReader(file)
         for row in reader:
@@ -54,10 +55,11 @@ def fees_report(infile, outfile):
             if returned_date > due_date:
                 days_late = (returned_date - due_date).days
                 late_fees[row['patron_id']] += days_late * 0.25
-    
+
     with open(outfile, 'w', newline='') as file:
         writer = DictWriter(file, fieldnames=['patron_id', 'late_fees'])
         writer.writeheader()
+        
         for patron_id, fee in late_fees.items():
             writer.writerow({'patron_id': patron_id, 'late_fees': f'{fee:.2f}'})
 
