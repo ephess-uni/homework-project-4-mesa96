@@ -62,6 +62,10 @@ def fees_report(infile, outfile):
         
         for patron_id, fee in late_fees.items():
             writer.writerow({'patron_id': patron_id, 'late_fees': f'{fee:.2f}'})
+        # Add patrons with zero fee
+        for patron_id in set(row['patron_id'] for row in reader):
+            if patron_id not in late_fees:
+                writer.writerow({'patron_id': patron_id, 'late_fees': '0.00'})
 
 
 # The following main selection block will only run when you choose
